@@ -9,6 +9,7 @@ package services;
 import dao.ClienteDao;
 import dao.DaoFactory;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import model.Cliente;
 
 /**
@@ -29,5 +30,15 @@ public class ClienteServices {
         */
         clienteDao.inserirCliente(c);
         
+    } // fecha método
+    
+    public ArrayList<Cliente> consultarClientes()
+            throws SQLException {
+        
+        ClienteDao clienteDao =
+                DaoFactory.getClienteDao();
+        
+        return
+        clienteDao.consultarClientes();
     } // fecha método
 } // fecha classe

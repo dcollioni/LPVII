@@ -7,7 +7,9 @@
 package view;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 import model.Cliente;
 import services.ClienteServices;
 import services.ServicesFactory;
@@ -23,6 +25,44 @@ public class ClienteView extends javax.swing.JFrame {
      */
     public ClienteView() {
         initComponents();
+        
+        atualizarTabela();
+    } // fecha método
+    
+    private void atualizarTabela() {
+        ClienteServices clienteServices =
+                ServicesFactory.getClienteServices();
+        
+        try {
+            ArrayList<Cliente> clientes = 
+                    clienteServices.consultarClientes();
+            
+            DefaultTableModel dtm = 
+                    (DefaultTableModel)
+                    tblClientes.getModel();
+            
+            while (dtm.getRowCount() > 0) {
+                dtm.removeRow(0);
+            } // fecha while
+            
+            for (int i = 0; i < clientes.size(); i++) {
+                Cliente c = clientes.get(i);
+                
+                dtm.addRow(new Object[] {
+                    c.getCodigo(),
+                    c.getNome(),
+                    c.getCidade()
+                });
+            } // fecha for
+            
+            tblClientes.setModel(dtm);
+        }
+        catch (SQLException e) {
+            JOptionPane.showMessageDialog(
+                null,
+                e.getMessage()
+            );
+        }
     }
 
     /**
@@ -40,6 +80,8 @@ public class ClienteView extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         txtCidade = new javax.swing.JTextField();
         btnInserir = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblClientes = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Cadastro Cliente");
@@ -72,7 +114,7 @@ public class ClienteView extends javax.swing.JFrame {
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addComponent(txtCidade)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addGap(0, 132, Short.MAX_VALUE)
+                        .addGap(0, 243, Short.MAX_VALUE)
                         .addComponent(btnInserir)))
                 .addContainerGap())
         );
@@ -92,13 +134,40 @@ public class ClienteView extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
+        tblClientes.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Código", "Nome", "Cidade"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Integer.class, java.lang.String.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(tblClientes);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -106,6 +175,8 @@ public class ClienteView extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -134,6 +205,8 @@ public class ClienteView extends javax.swing.JFrame {
                     .showMessageDialog(
                             null,
                             "Cliente inserido.");
+            
+            atualizarTabela();
         }
         catch (SQLException e) {
             JOptionPane
@@ -149,6 +222,8 @@ public class ClienteView extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable tblClientes;
     private javax.swing.JTextField txtCidade;
     private javax.swing.JTextField txtNome;
     // End of variables declaration//GEN-END:variables

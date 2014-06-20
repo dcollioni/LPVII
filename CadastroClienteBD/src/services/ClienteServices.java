@@ -41,4 +41,15 @@ public class ClienteServices {
         return
         clienteDao.consultarClientes();
     } // fecha método
+    
+    public void atualizarCliente(Cliente c)
+            throws SQLException {
+        
+        ClienteDao clienteDao = 
+                DaoFactory.getClienteDao();
+        
+        clienteDao.atualizarCliente(c);
+        
+    } // fecha método
+    
 } // fecha classe

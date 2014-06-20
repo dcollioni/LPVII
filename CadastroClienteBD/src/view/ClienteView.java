@@ -9,6 +9,8 @@ package view;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import model.Cliente;
 import services.ClienteServices;
@@ -20,13 +22,68 @@ import services.ServicesFactory;
  */
 public class ClienteView extends javax.swing.JFrame {
 
+    private int codigoSelecionado = 0;
+    
     /**
      * Creates new form ClienteView
      */
     public ClienteView() {
         initComponents();
         
+        adicionarEventoSelecao();
         atualizarTabela();
+    } // fecha método
+    
+    private void adicionarEventoSelecao() {
+        
+        tblClientes.getSelectionModel()
+                .addListSelectionListener(
+        new ListSelectionListener() {
+
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                // Pega o índice da linha selecionada
+                int linhaSelecionada
+                        = tblClientes.getSelectedRow();
+                
+                // Se não há linha selecionada
+                if (linhaSelecionada < 0) {
+                    txtNome.setText("");
+                    txtCidade.setText("");
+                    btnAtualizar.setEnabled(false);
+                }
+                else {
+                    int codigo;
+                    String nome, cidade;
+                    
+                    // Pega a primeira coluna da linha selecionada
+                    codigo = (int)
+                    tblClientes.getModel()
+                               .getValueAt(
+                                    linhaSelecionada,
+                                    0);
+                    // Pega a segunda coluna da linha selecionada
+                    nome = (String)
+                    tblClientes.getModel()
+                               .getValueAt(
+                                    linhaSelecionada,
+                                    1);
+                    // Pega a terceira coluna da linha selecionada
+                    cidade = (String)
+                    tblClientes.getModel()
+                               .getValueAt(
+                                    linhaSelecionada,
+                                    2);
+                    
+                    txtNome.setText(nome);
+                    txtCidade.setText(cidade);
+                    btnAtualizar.setEnabled(true);
+                    codigoSelecionado = codigo;
+                }
+                
+            } // fecha método
+        });
+        
     } // fecha método
     
     private void atualizarTabela() {
@@ -80,6 +137,7 @@ public class ClienteView extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         txtCidade = new javax.swing.JTextField();
         btnInserir = new javax.swing.JButton();
+        btnAtualizar = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblClientes = new javax.swing.JTable();
 
@@ -99,6 +157,14 @@ public class ClienteView extends javax.swing.JFrame {
             }
         });
 
+        btnAtualizar.setText("Atualizar");
+        btnAtualizar.setEnabled(false);
+        btnAtualizar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAtualizarActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -111,11 +177,13 @@ public class ClienteView extends javax.swing.JFrame {
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel1)
                             .addComponent(jLabel2))
-                        .addGap(0, 0, Short.MAX_VALUE))
+                        .addGap(0, 269, Short.MAX_VALUE))
                     .addComponent(txtCidade)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addGap(0, 243, Short.MAX_VALUE)
-                        .addComponent(btnInserir)))
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(btnInserir)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnAtualizar)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -130,7 +198,9 @@ public class ClienteView extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txtCidade, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(btnInserir)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnInserir)
+                    .addComponent(btnAtualizar))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -176,8 +246,8 @@ public class ClienteView extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 130, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         pack();
@@ -216,8 +286,43 @@ public class ClienteView extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnInserirActionPerformed
 
+    private void btnAtualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAtualizarActionPerformed
+        // Pega os valores dos campos
+        String nome = txtNome.getText();
+        String cidade = txtCidade.getText();
+        
+        // Cria um objeto cliente
+        Cliente c = new Cliente();
+        
+        // Atualiza o cliente criado com os valores
+        c.setNome(nome);
+        c.setCidade(cidade);
+        
+        // Atualiza o código do cliente
+        c.setCodigo(codigoSelecionado);
+        
+        ClienteServices clienteServices =
+                ServicesFactory.getClienteServices();
+        
+        try {
+            clienteServices.atualizarCliente(c);
+            
+            JOptionPane.showMessageDialog(
+                    null,
+                    "Cliente atualizado.");
+            
+            atualizarTabela();
+        }
+        catch (SQLException e) {
+            JOptionPane.showMessageDialog(
+                    null, 
+                    "Erro: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnAtualizarActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAtualizar;
     private javax.swing.JButton btnInserir;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;

@@ -112,4 +112,32 @@ public class ClienteDao {
         return clientes;
     } // fecha método
     
+    public void atualizarCliente(Cliente c)
+            throws SQLException {
+        
+        Connection con = ConexaoBanco.getConexao();
+        
+        Statement stat = con.createStatement();
+        
+        try {
+            String sql = "update cliente" +
+                    "set nome = '" + c.getNome() + "'" +
+                    " , cidade = '" + c.getCidade() + "'" +
+                    " where codigo = " + c.getCodigo();
+            
+            stat.execute(sql);
+        }
+        catch (SQLException e) {
+            throw new SQLException(
+                "Erro ao atualizar: "
+                    + e.getMessage()
+            );
+        }
+        finally {
+            con.close();
+            stat.close();
+        }
+        
+    } // fecha método
+    
 } // fecha classe
